@@ -1,23 +1,33 @@
 "use client";
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import { Package } from "lucide-react";
 import Header from "@/components/Header";
 import FilterBar from "@/components/FilterBar";
-import ProductCard from "@/components/ProductCard";
+import { ProductCard } from "@/components/ProductCard";
 import ShoppingCartSidebar from "@/components/ShoppingCartSidebar";
 import LoadingSkeleton from "@/components/LoadingSkeleton";
+import Pagination from "@/components/Pagination";
 import { PRODUCTS } from "@/data/products";
+
+const ITEMS_PER_PAGE = 6;
 
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [sortBy, setSortBy] = useState("featured");
   const [isLoading, setIsLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
 
   // Simulate loading
   useEffect(() => {
     setTimeout(() => setIsLoading(false), 800);
   }, []);
+
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, selectedCategory, sortBy]);
 
   // Filter and sort products
   const filteredProducts = PRODUCTS.filter((product) => {
@@ -33,6 +43,17 @@ export default function Home() {
     if (sortBy === "rating") return b.rating - a.rating;
     return 0;
   });
+
+  // Pagination calculations
+  const totalPages = Math.ceil(filteredProducts.length / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const endIndex = startIndex + ITEMS_PER_PAGE;
+  const currentProducts = filteredProducts.slice(startIndex, endIndex);
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -62,16 +83,23 @@ export default function Home() {
           </div>
         ) : (
           <>
-            <div className="mb-6 text-gray-600">
-              Showing{" "}
-              <span className="font-semibold">{filteredProducts.length}</span>{" "}
-              products
-            </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredProducts.map((product) => (
-                <ProductCard key={product.id} product={product} />
+              {currentProducts.map((product) => (
+                <Link key={product.id} href={`/product/${product.id}`}>
+                  <ProductCard product={product} />
+                </Link>
               ))}
             </div>
+
+            {totalPages > 1 && (
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={handlePageChange}
+                itemsPerPage={ITEMS_PER_PAGE}
+                totalItems={filteredProducts.length}
+              />
+            )}
           </>
         )}
       </main>
