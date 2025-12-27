@@ -2,7 +2,8 @@
 import { useState } from "react";
 import { Plus, Star, Heart, Package, Eye } from "lucide-react";
 import { useCart } from "@/context/CartContext";
-import Link from "next/link"; // 1. Import Link
+import Link from "next/link";
+import Image from "next/image"; // 1. Import the Image component
 
 export function ProductCard({ product }) {
   const { addToCart } = useCart();
@@ -10,8 +11,8 @@ export function ProductCard({ product }) {
   const [isFavorite, setIsFavorite] = useState(false);
 
   const handleAddToCart = (e) => {
-    e.preventDefault(); // 2. Prevents the Link from triggering
-    e.stopPropagation(); // 3. Prevents the click event from bubbling up
+    e.preventDefault();
+    e.stopPropagation();
     setIsAdding(true);
     addToCart(product);
     setTimeout(() => setIsAdding(false), 600);
@@ -24,19 +25,27 @@ export function ProductCard({ product }) {
   };
 
   return (
-    // 4. Wrap the entire card in a Link
     <Link href={`/product/${product.id}`} className="group block h-full">
       <div className="bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden cursor-pointer h-full flex flex-col border border-transparent hover:border-blue-100">
         {/* Image Section */}
+        {/* Added 'relative' class here is crucial for Image fill to work */}
         <div className="relative bg-gradient-to-br from-blue-50 to-purple-50 h-48 sm:h-56 flex items-center justify-center overflow-hidden">
-          <img
+          {/* 2. Replaced <img> with <Image /> */}
+          <Image
             src={product.image}
             alt={product.name}
-            className="w-32 h-32 sm:w-40 sm:h-40 object-contain transition-transform duration-500 group-hover:scale-110"
+            fill
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            priority={true} // High priority for product images
+            /* 1. object-contain: keeps the whole product visible
+       2. p-2: minimal padding so it almost touches the edges
+       3. scale-105: slightly oversized by default to feel "full"
+    */
+            className="object-contain p-2 scale-105 transition-transform duration-500 group-hover:scale-115"
           />
 
           {/* Hover Overlay */}
-          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-all duration-300 flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-all duration-300 flex items-center justify-center z-10">
             <div className="opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all duration-300">
               <div className="bg-white/90 backdrop-blur-sm text-gray-900 px-4 py-2 rounded-lg font-semibold flex items-center gap-2 shadow-lg border border-gray-100">
                 <Eye size={18} />
@@ -57,7 +66,7 @@ export function ProductCard({ product }) {
             />
           </button>
 
-          <div className="absolute top-3 left-3 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full shadow-sm">
+          <div className="absolute top-3 left-3 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full shadow-sm z-20">
             -30%
           </div>
         </div>

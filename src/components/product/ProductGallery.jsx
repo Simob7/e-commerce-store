@@ -2,49 +2,58 @@
 import React, { useState } from "react";
 
 export default function ProductGallery({ product }) {
-  // 1. Initialize state with the main product image
+  // Initialize state with the main product image
   const [selectedImage, setSelectedImage] = useState(product.image);
 
-  // If your product data has an array of images, use that.
-  // Otherwise, we'll use this mock array for the thumbnails:
+  // Expanded mock array to demonstrate scrolling capability
   const images = product.images || [
     product.image,
-    product.image,
-    product.image,
-    product.image,
+    "/api/placeholder/400/400", // Representative of extra images
+    "/api/placeholder/400/400",
+    "/api/placeholder/400/400",
+    "/api/placeholder/400/400",
+    "/api/placeholder/400/400",
   ];
 
   return (
     <div className="space-y-4">
-      {/* Main Image Display */}
-      <div className="aspect-square bg-gradient-to-br from-blue-50 to-purple-50 rounded-2xl flex items-center justify-center overflow-hidden border border-gray-100">
+      {/* Main Image Display - Stays Static */}
+      <div className="aspect-square bg-gradient-to-br from-blue-50 to-purple-50 rounded-2xl flex items-center justify-center overflow-hidden border border-gray-100 shadow-inner">
         <img
-          src={selectedImage} // 2. Use the state variable here
+          src={selectedImage}
           alt={product.name}
-          className="w-4/5 h-4/5 object-contain transition-all duration-500 hover:scale-110"
+          className="w-4/5 h-4/5 object-contain transition-all duration-500"
+          key={selectedImage} // Force a re-animation when image changes
         />
       </div>
 
-      {/* Thumbnail Navigation */}
-      <div className="grid grid-cols-4 gap-4">
-        {images.map((img, index) => (
-          <div
-            key={index}
-            onClick={() => setSelectedImage(img)} // 3. Update state on click
-            className={`aspect-square rounded-lg border-2 flex items-center justify-center bg-white cursor-pointer transition-all ${
-              selectedImage === img
-                ? "border-blue-600 shadow-sm" // 4. Highlight active thumbnail
-                : "border-transparent hover:border-gray-200"
-            }`}>
-            <img
-              src={img}
-              alt={`thumbnail-${index}`}
-              className={`w-12 h-12 object-contain transition-opacity ${
-                selectedImage === img ? "opacity-100" : "opacity-60"
-              }`}
-            />
-          </div>
-        ))}
+      {/* Thumbnail Navigation - Now Scrollable */}
+      <div className="relative">
+        <div className="flex gap-4 overflow-x-auto pb-2 pt-1 px-1 no-scrollbar snap-x">
+          {images.map((img, index) => (
+            <div
+              key={index}
+              onClick={() => setSelectedImage(img)}
+              className={`flex-shrink-0 w-20 h-20 aspect-square rounded-xl border-2 flex items-center justify-center bg-white cursor-pointer transition-all snap-start ${
+                selectedImage === img
+                  ? "border-blue-600 shadow-md scale-105"
+                  : "border-gray-100 hover:border-gray-300"
+              }`}>
+              <img
+                src={img}
+                alt={`thumbnail-${index}`}
+                className={`w-14 h-14 object-contain transition-opacity ${
+                  selectedImage === img ? "opacity-100" : "opacity-60"
+                }`}
+              />
+            </div>
+          ))}
+        </div>
+
+        {/* Visual Indicator for "More Images" */}
+        {images.length > 4 && (
+          <div className="absolute right-0 top-0 bottom-2 w-12 bg-gradient-to-l from-white to-transparent pointer-events-none" />
+        )}
       </div>
     </div>
   );

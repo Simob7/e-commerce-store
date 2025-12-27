@@ -11,14 +11,18 @@ import Header from "@/components/Header";
 import ShoppingCartSidebar from "@/components/ShoppingCartSidebar";
 import Link from "next/link";
 import { ProductCard } from "@/components/ProductCard";
+import { useCart } from "@/context/CartContext";
 
 export default function ProductPage({ params }) {
   const router = useRouter();
+  const { cart } = useCart(); // Get the cart state
   const [product, setProduct] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
-    const foundProduct = PRODUCTS.find((p) => p.id === parseInt(params.id));
+    // Force the ID to be a Number
+    const productId = Number(params.id);
+    const foundProduct = PRODUCTS.find((p) => p.id === productId);
     setProduct(foundProduct);
   }, [params.id]);
 
@@ -28,8 +32,6 @@ export default function ProductPage({ params }) {
 
     return (
       <div className="min-h-screen bg-white flex flex-col">
-        <Header searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
-
         <main className="flex-grow flex flex-col items-center justify-center px-4 py-12">
           {/* Animated Icon & Text */}
           <div className="text-center max-w-md animate-in fade-in zoom-in duration-500">
@@ -93,8 +95,6 @@ export default function ProductPage({ params }) {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
-
       {/* Breadcrumb */}
       <div className="bg-white border-b">
         <div className="max-w-7xl mx-auto px-4 py-4">

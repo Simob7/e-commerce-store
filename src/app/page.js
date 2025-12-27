@@ -1,110 +1,107 @@
 "use client";
-import { useState, useEffect } from "react";
-import Link from "next/link";
-import { Package } from "lucide-react";
-import Header from "@/components/Header";
-import FilterBar from "@/components/FilterBar";
-import { ProductCard } from "@/components/ProductCard";
-import ShoppingCartSidebar from "@/components/ShoppingCartSidebar";
-import LoadingSkeleton from "@/components/LoadingSkeleton";
-import Pagination from "@/components/Pagination";
+import { useSearchParams, useRouter } from "next/navigation";
 import { PRODUCTS } from "@/data/products";
+import { ProductCard } from "@/components/ProductCard";
+import { Sparkles, ShoppingBag, Percent } from "lucide-react";
+import HeroCarousel from "@/components/HeroCarousel";
 
-const ITEMS_PER_PAGE = 6;
+export default function HomePage() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
 
-export default function Home() {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("All");
-  const [sortBy, setSortBy] = useState("featured");
-  const [isLoading, setIsLoading] = useState(true);
-  const [currentPage, setCurrentPage] = useState(1);
+  const query = searchParams.get("search")?.toLowerCase() || "";
+  const activeCategory = searchParams.get("category") || "All";
 
-  // Simulate loading
-  useEffect(() => {
-    setTimeout(() => setIsLoading(false), 800);
-  }, []);
-
-  // Reset to page 1 when filters change
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [searchQuery, selectedCategory, sortBy]);
-
-  // Filter and sort products
+  // Handle Filtering Logic
   const filteredProducts = PRODUCTS.filter((product) => {
     const matchesSearch =
-      product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      product.description.toLowerCase().includes(searchQuery.toLowerCase());
+      product.name.toLowerCase().includes(query) ||
+      product.category.toLowerCase().includes(query);
     const matchesCategory =
-      selectedCategory === "All" || product.category === selectedCategory;
+      activeCategory === "All" || product.category === activeCategory;
     return matchesSearch && matchesCategory;
-  }).sort((a, b) => {
-    if (sortBy === "price-low") return a.price - b.price;
-    if (sortBy === "price-high") return b.price - a.price;
-    if (sortBy === "rating") return b.rating - a.rating;
-    return 0;
   });
 
-  // Pagination calculations
-  const totalPages = Math.ceil(filteredProducts.length / ITEMS_PER_PAGE);
-  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-  const endIndex = startIndex + ITEMS_PER_PAGE;
-  const currentProducts = filteredProducts.slice(startIndex, endIndex);
-
-  const handlePageChange = (page) => {
-    setCurrentPage(page);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+  const handleCategoryClick = (category) => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (category === "All") params.delete("category");
+    else params.set("category", category);
+    router.push(`/?${params.toString()}`, { scroll: false });
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Header searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
-      <FilterBar
-        selectedCategory={selectedCategory}
-        setSelectedCategory={setSelectedCategory}
-        sortBy={sortBy}
-        setSortBy={setSortBy}
-      />
+    <div className="bg-white">
+      {/* 1. HERO SECTION (Carousel) */}
+      {!query && <HeroCarousel />}
 
-      <main className="max-w-7xl mx-auto px-4 py-8">
-        {isLoading ? (
-          <LoadingSkeleton />
-        ) : filteredProducts.length === 0 ? (
-          <div className="text-center py-16">
-            <Package size={64} className="mx-auto text-gray-300 mb-4" />
-            <p className="text-xl text-gray-500">No products found</p>
-            <button
-              onClick={() => {
-                setSearchQuery("");
-                setSelectedCategory("All");
-              }}
-              className="mt-4 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-              Clear Filters
-            </button>
+      <main className="max-w-7xl mx-auto px-4 py-12">
+        {/* 2. SECTION HEADER & FILTERS */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4">
+          <div>
+            <h2 className="text-3xl font-bold text-gray-900">
+              {query ? `Results for "${query}"` : `${activeCategory} Products`}
+            </h2>
           </div>
-        ) : (
-          <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {currentProducts.map((product) => (
-                <Link key={product.id} href={`/product/${product.id}`}>
-                  <ProductCard product={product} />
-                </Link>
+
+          {!query && (
+            <div className="flex gap-2 overflow-x-auto pb-2 no-scrollbar">
+              {["All", "Electronics", "Accessories", "New"].map((cat) => (
+                <button
+                  key={cat}
+                  onClick={() => handleCategoryClick(cat)}
+                  className={`px-5 py-2 rounded-full border text-sm font-medium transition-all whitespace-nowrap ${
+                    activeCategory === cat
+                      ? "bg-blue-600 border-blue-600 text-white"
+                      : "border-gray-200 text-gray-600 hover:border-blue-600 hover:text-blue-600"
+                  }`}>
+                  {cat}
+                </button>
               ))}
             </div>
+          )}
+        </div>
 
-            {totalPages > 1 && (
-              <Pagination
-                currentPage={currentPage}
-                totalPages={totalPages}
-                onPageChange={handlePageChange}
-                itemsPerPage={ITEMS_PER_PAGE}
-                totalItems={filteredProducts.length}
-              />
-            )}
-          </>
+        {/* 3. PRODUCT GRID */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-10">
+          {filteredProducts.map((product) => (
+            <ProductCard key={product.id} product={product} />
+          ))}
+        </div>
+
+        {/* 4. EMPTY STATE */}
+        {filteredProducts.length === 0 && (
+          <div className="text-center py-32 bg-gray-50 rounded-3xl border border-dashed">
+            <ShoppingBag className="mx-auto text-gray-300 mb-4" size={48} />
+            <h3 className="text-xl font-bold">No items found</h3>
+            <button
+              onClick={() => router.push("/")}
+              className="text-blue-600 mt-4 font-bold">
+              Clear all filters
+            </button>
+          </div>
+        )}
+
+        {/* 5. TRUST BADGES */}
+        {!query && (
+          <div className="mt-32 grid grid-cols-1 sm:grid-cols-3 gap-8 border-t pt-16">
+            <div className="text-center">
+              <ShoppingBag className="mx-auto text-blue-600 mb-2" />
+              <h4 className="font-bold">Free Shipping</h4>
+              <p className="text-sm text-gray-500">On orders over $100</p>
+            </div>
+            <div className="text-center">
+              <Percent className="mx-auto text-green-600 mb-2" />
+              <h4 className="font-bold">Best Prices</h4>
+              <p className="text-sm text-gray-500">Guaranteed value</p>
+            </div>
+            <div className="text-center">
+              <Sparkles className="mx-auto text-purple-600 mb-2" />
+              <h4 className="font-bold">Quality Assured</h4>
+              <p className="text-sm text-gray-500">100% Authentic</p>
+            </div>
+          </div>
         )}
       </main>
-
-      <ShoppingCartSidebar />
     </div>
   );
 }
