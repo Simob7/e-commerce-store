@@ -1,4 +1,72 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# E-Commerce Store
+
+Modern, responsive e-commerce platform built with Next.js 14, React, and Tailwind CSS.
+
+## Features
+
+- 🛒 **Shopping Cart** - Add, remove, and update product quantities
+- 💾 **Persistent Storage** - Cart data saved to localStorage
+- 🔍 **Search & Filter** - Real-time product search and category filtering
+- 📊 **Sort Options** - Sort by price, rating, or featured products
+- 📱 **Responsive Design** - Works on mobile, tablet, and desktop
+- ⚡ **Fast Performance** - Optimized with Next.js and React hooks
+- 🎨 **Modern UI** - Clean interface with smooth animations
+
+## Tech Stack
+
+- **Framework:** Next.js 14 (App Router)
+- **UI Library:** React 18
+- **Styling:** Tailwind CSS
+- **Icons:** Lucide React
+- **State Management:** React Context API
+- **Storage:** localStorage
+
+## Project Structure
+
+\`\`\`
+src/
+├── components/ # Reusable UI components
+├── context/ # Global state management
+├── data/ # Product data and constants
+├── hooks/ # Custom React hooks
+└── app/ # Next.js app router pages
+\`\`\`
+
+## Getting Started
+
+1. Clone the repository
+2. Install dependencies: \`npm install\`
+3. Run development server: \`npm run dev\`
+4. Open http://localhost:3000
+
+## Key Components
+
+- **CartContext** - Global cart state management
+- **ProductCard** - Reusable product display component
+- **ShoppingCartSidebar** - Sliding cart panel
+- **FilterBar** - Product filtering and sorting
+- **Header** - Navigation with search and cart
+
+## Performance Features
+
+- Loading skeletons for better UX
+- Optimized re-renders with React hooks
+- localStorage caching
+- Responsive images
+
+## Future Enhancements
+
+- Backend API integration
+- User authentication
+- Payment processing
+- Product reviews
+- Wishlist functionality
+
+  <!-- **************************** -->
+  <!-- **************************** -->
+  <!-- **************************** -->
+
+  This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
 ## Getting Started
 
