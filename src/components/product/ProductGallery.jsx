@@ -2,58 +2,53 @@
 import React, { useState } from "react";
 
 export default function ProductGallery({ product }) {
-  // Initialize state with the main product image
-  const [selectedImage, setSelectedImage] = useState(product.image);
+  const [selectedImage, setSelectedImage] = useState(product?.image);
 
-  // Expanded mock array to demonstrate scrolling capability
-  const images = product.images || [
-    product.image,
-    "/api/placeholder/400/400", // Representative of extra images
-    "/api/placeholder/400/400",
+  const images = product?.images || [
+    product?.image,
     "/api/placeholder/400/400",
     "/api/placeholder/400/400",
     "/api/placeholder/400/400",
   ];
 
   return (
-    <div className="space-y-4">
-      {/* Main Image Display - Stays Static */}
-      <div className="aspect-square bg-gradient-to-br from-blue-50 to-purple-50 rounded-2xl flex items-center justify-center overflow-hidden border border-gray-100 shadow-inner">
-        <img
-          src={selectedImage}
-          alt={product.name}
-          className="w-4/5 h-4/5 object-contain transition-all duration-500"
-          key={selectedImage} // Force a re-animation when image changes
-        />
+    /* Change 1: Use a flex-col-reverse on mobile (thumbnails bottom) 
+       and flex-row on desktop (thumbnails left) 
+    */
+    <div className="flex flex-col-reverse lg:flex-row gap-4">
+      {/* Thumbnail Navigation */}
+      <div className="flex lg:flex-col gap-3 overflow-x-auto lg:overflow-y-auto no-scrollbar lg:max-h-[500px] px-1 py-1">
+        {images?.map((img, index) => (
+          <button
+            key={index}
+            onClick={() => setSelectedImage(img)}
+            className={`flex-shrink-0 w-20 h-20 lg:w-24 lg:h-24 rounded-2xl border-2 transition-all p-2 bg-white flex items-center justify-center ${
+              selectedImage === img
+                ? "border-blue-600 ring-4 ring-blue-50 scale-95"
+                : "border-gray-100 hover:border-blue-200"
+            }`}>
+            <img
+              src={img}
+              alt={`View ${index}`}
+              className="w-full h-full object-contain"
+            />
+          </button>
+        ))}
       </div>
 
-      {/* Thumbnail Navigation - Now Scrollable */}
-      <div className="relative">
-        <div className="flex gap-4 overflow-x-auto pb-2 pt-1 px-1 no-scrollbar snap-x">
-          {images.map((img, index) => (
-            <div
-              key={index}
-              onClick={() => setSelectedImage(img)}
-              className={`flex-shrink-0 w-20 h-20 aspect-square rounded-xl border-2 flex items-center justify-center bg-white cursor-pointer transition-all snap-start ${
-                selectedImage === img
-                  ? "border-blue-600 shadow-md scale-105"
-                  : "border-gray-100 hover:border-gray-300"
-              }`}>
-              <img
-                src={img}
-                alt={`thumbnail-${index}`}
-                className={`w-14 h-14 object-contain transition-opacity ${
-                  selectedImage === img ? "opacity-100" : "opacity-60"
-                }`}
-              />
-            </div>
-          ))}
-        </div>
+      {/* Main Image Display */}
+      <div className="flex-1 aspect-square bg-gray-50 rounded-[2.5rem] flex items-center justify-center overflow-hidden border border-gray-100 relative group">
+        {/* Discount Badge - Optional UI touch */}
+        <span className="absolute top-6 left-6 bg-red-500 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg z-10">
+          SALE -30%
+        </span>
 
-        {/* Visual Indicator for "More Images" */}
-        {images.length > 4 && (
-          <div className="absolute right-0 top-0 bottom-2 w-12 bg-gradient-to-l from-white to-transparent pointer-events-none" />
-        )}
+        <img
+          src={selectedImage}
+          alt={product?.name}
+          key={selectedImage}
+          className="w-4/5 h-4/5 object-contain transition-all duration-700 ease-out group-hover:scale-110"
+        />
       </div>
     </div>
   );

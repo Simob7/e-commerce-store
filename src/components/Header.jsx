@@ -160,7 +160,9 @@ export default function Header() {
 
         {/* MOBILE SEARCH BAR */}
         {isSearchOpen && (
-          <div className="md:hidden mt-3 animate-in slide-in-from-top duration-200">
+          <div
+            className="md:hidden mt-3 animate-in slide-in-from-top duration-200 relative"
+            ref={searchRef}>
             <form onSubmit={handleSearchSubmit} className="relative">
               <Search
                 className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
@@ -175,6 +177,43 @@ export default function Header() {
                 className="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-xl outline-none"
               />
             </form>
+
+            {/* ADD THIS: Mobile Search Results */}
+            {searchResults.length > 0 && (
+              <div className="absolute top-full left-0 w-full mt-2 bg-white rounded-2xl shadow-2xl border border-gray-100 z-[60] overflow-hidden">
+                <div className="p-2">
+                  {searchResults.map((product) => (
+                    <Link
+                      key={product.id}
+                      href={`/product/${product.id}`}
+                      onClick={() => {
+                        setSearchResults([]);
+                        setLocalQuery("");
+                        setIsSearchOpen(false);
+                      }}
+                      className="flex items-center gap-3 p-3 hover:bg-blue-50 rounded-xl transition-colors">
+                      <div className="relative w-12 h-12 bg-gray-100 rounded-lg flex-shrink-0">
+                        <Image
+                          src={product.image}
+                          alt={product.name}
+                          fill
+                          className="object-contain p-1"
+                        />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-bold text-gray-900 truncate">
+                          {product.name}
+                        </p>
+                        <p className="text-[10px] text-gray-500 uppercase">
+                          {product.category}
+                        </p>
+                      </div>
+                      <ArrowRight size={14} className="text-gray-300" />
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         )}
 
