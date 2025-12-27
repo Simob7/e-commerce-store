@@ -1,18 +1,33 @@
 "use client";
 import { useSearchParams, useRouter } from "next/navigation";
+import { Suspense } from "react"; // 1. Import Suspense
 import { PRODUCTS } from "@/data/products";
 import { ProductCard } from "@/components/ProductCard";
 import { Sparkles, ShoppingBag, Percent } from "lucide-react";
 import HeroCarousel from "@/components/HeroCarousel";
 
+// 2. Wrap the dynamic content in Suspense
 export default function HomePage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center">
+          Loading Shop...
+        </div>
+      }>
+      <HomeContent />
+    </Suspense>
+  );
+}
+
+// 3. Move your logic into this sub-component
+function HomeContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
   const query = searchParams.get("search")?.toLowerCase() || "";
   const activeCategory = searchParams.get("category") || "All";
 
-  // Handle Filtering Logic
   const filteredProducts = PRODUCTS.filter((product) => {
     const matchesSearch =
       product.name.toLowerCase().includes(query) ||
@@ -31,11 +46,9 @@ export default function HomePage() {
 
   return (
     <div className="bg-white">
-      {/* 1. HERO SECTION (Carousel) */}
       {!query && <HeroCarousel />}
 
       <main className="max-w-7xl mx-auto px-4 py-12">
-        {/* 2. SECTION HEADER & FILTERS */}
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4">
           <div>
             <h2 className="text-3xl font-bold text-gray-900">
@@ -61,14 +74,12 @@ export default function HomePage() {
           )}
         </div>
 
-        {/* 3. PRODUCT GRID */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-10">
           {filteredProducts.map((product) => (
             <ProductCard key={product.id} product={product} />
           ))}
         </div>
 
-        {/* 4. EMPTY STATE */}
         {filteredProducts.length === 0 && (
           <div className="text-center py-32 bg-gray-50 rounded-3xl border border-dashed">
             <ShoppingBag className="mx-auto text-gray-300 mb-4" size={48} />
@@ -81,7 +92,6 @@ export default function HomePage() {
           </div>
         )}
 
-        {/* 5. TRUST BADGES */}
         {!query && (
           <div className="mt-32 grid grid-cols-1 sm:grid-cols-3 gap-8 border-t pt-16">
             <div className="text-center">
