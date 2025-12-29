@@ -8,7 +8,7 @@ const nextConfig = {
       },
       {
         protocol: "https",
-        hostname: "cdn.yoursite.com",
+        hostname: "picsum.photos",
       },
     ],
   },

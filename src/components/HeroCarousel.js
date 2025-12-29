@@ -10,8 +10,7 @@ const SLIDES = [
     subtitle: "New Season Arrival",
     description:
       "Discover the next generation of electronics and gadgets. Premium quality, unbeatable prices.",
-    image:
-      "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=800&q=80",
+    image: "https://picsum.photos/id/180/800/800",
     accent: "text-blue-500",
     bg: "from-gray-900 via-gray-900 to-blue-900/20",
   },
@@ -21,8 +20,7 @@ const SLIDES = [
     subtitle: "Limited Edition",
     description:
       "Experience audio like never before with our noise-cancelling collection. 30% off today.",
-    image:
-      "https://images.unsplash.com/photo-1518445696421-2be1e6d92e25?auto=format&fit=crop&w=800&q=80",
+    image: "https://picsum.photos/id/29/800/800",
     accent: "text-purple-500",
     bg: "from-gray-900 via-gray-900 to-purple-900/20",
   },
@@ -32,8 +30,7 @@ const SLIDES = [
     subtitle: "Eco-Friendly Tech",
     description:
       "Automate your world with the latest in smart home innovation and energy-saving devices.",
-    image:
-      "https://images.unsplash.com/photo-1558002038-1055907df827?auto=format&fit=crop&w=800&q=80",
+    image: "https://picsum.photos/id/1062/800/800",
     accent: "text-green-500",
     bg: "from-gray-900 via-gray-900 to-green-900/20",
   },

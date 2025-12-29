@@ -3,10 +3,11 @@ import React, { useState } from "react";
 import { useCart } from "@/context/CartContext";
 import {
   Lock,
-  CreditCard,
-  Truck,
   ChevronRight,
   AlertCircle,
+  ShieldCheck,
+  CreditCard,
+  Truck,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -28,24 +29,19 @@ export default function CheckoutPage() {
   const shippingFee = 15.0;
   const total = cartTotal + shippingFee;
 
-  // 1. Validation Logic
   const validate = () => {
     let newErrors = {};
     if (!formData.firstName) newErrors.firstName = "First name is required";
     if (!formData.lastName) newErrors.lastName = "Last name is required";
-    if (!formData.address) newErrors.address = "Shipping address is required";
+    if (!formData.address) newErrors.address = "Address is required";
     if (!formData.city) newErrors.city = "City is required";
     if (!/^\d{5}$/.test(formData.zip))
-      newErrors.zip = "Enter a valid 5-digit ZIP";
-
-    // Simple Card Validation
-    if (!/^\d{16}$/.test(formData.cardNumber.replace(/\s/g, ""))) {
-      newErrors.cardNumber = "Enter a valid 16-digit card number";
-    }
+      newErrors.zip = "Valid 5-digit ZIP required";
+    if (!/^\d{16}$/.test(formData.cardNumber.replace(/\s/g, "")))
+      newErrors.cardNumber = "Valid 16-digit card required";
     if (!/^\d{2}\/\d{2}$/.test(formData.expiry))
-      newErrors.expiry = "Use MM/YY format";
-    if (!/^\d{3}$/.test(formData.cvc)) newErrors.cvc = "CVC must be 3 digits";
-
+      newErrors.expiry = "MM/YY format";
+    if (!/^\d{3}$/.test(formData.cvc)) newErrors.cvc = "3 digits";
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -54,7 +50,6 @@ export default function CheckoutPage() {
     e.preventDefault();
     if (validate()) {
       setIsSubmitting(true);
-      // Simulate API Call
       setTimeout(() => {
         alert("Order Placed Successfully!");
         setIsSubmitting(false);
@@ -62,100 +57,202 @@ export default function CheckoutPage() {
     }
   };
 
-  const handleChange = (e, field) => {
-    setFormData({ ...formData, [field]: e.target.value });
-    // Clear error when user starts typing again
-    if (errors[field]) setErrors({ ...errors, [field]: null });
-  };
-
   return (
-    <div className="min-h-screen bg-gray-50 pb-20">
-      <div className="bg-white border-b py-6 mb-8 text-center font-bold text-2xl">
-        🛍️ ShopHub Portfolio Checkout
-      </div>
+    <div className="min-h-screen bg-[#F8F9FB] pb-20">
+      {/* 1. SMART HEADER: Progress Indicator */}
+      <header className="bg-white border-b sticky top-0 z-40 px-4 py-4">
+        <div className="max-w-7xl mx-auto flex justify-between items-center">
+          <Link
+            href="/"
+            className="text-xl font-black tracking-tighter text-blue-600">
+            SHOPHUB
+          </Link>
+          <div className="hidden sm:flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-gray-400">
+            <span>Cart</span> <ChevronRight size={14} />
+            <span className="text-gray-900">Checkout</span>{" "}
+            <ChevronRight size={14} />
+            <span>Success</span>
+          </div>
+          <div className="flex items-center gap-2 text-green-600 bg-green-50 px-3 py-1.5 rounded-full text-xs font-bold">
+            <ShieldCheck size={14} /> Secure
+          </div>
+        </div>
+      </header>
 
-      <main className="max-w-7xl mx-auto px-4">
+      <main className="max-w-7xl mx-auto px-4 mt-8">
         <form
           onSubmit={handleSubmit}
-          className="grid grid-cols-1 lg:grid-cols-12 gap-12">
-          {/* LEFT: Checkout Form */}
-          <div className="lg:col-span-8 space-y-6">
-            <section className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100">
-              <div className="flex items-center gap-4 mb-8">
-                <div className="w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold">
-                  1
-                </div>
-                <h2 className="text-2xl font-bold">Shipping Details</h2>
+          className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          {/* RIGHT COLUMN (Order Summary) 
+              - 'order-first': Displays at the top on Mobile
+              - 'lg:order-last': Displays on the right on Desktop
+          */}
+          <div className="lg:col-span-4 order-first lg:order-last">
+            <div className="bg-white rounded-[2rem] p-6 sm:p-8 shadow-sm border border-gray-100 sticky top-28">
+              <h3 className="text-xl font-black mb-6 flex items-center gap-2">
+                Order Review{" "}
+                <span className="text-sm font-medium text-gray-400">
+                  ({cart.length})
+                </span>
+              </h3>
+
+              <div className="space-y-4 mb-6 max-h-[300px] overflow-y-auto pr-2 no-scrollbar">
+                {cart.map((item) => (
+                  <div
+                    key={item.id}
+                    className="flex gap-4 items-center animate-in fade-in duration-500">
+                    <div className="relative w-16 h-16 bg-gray-50 rounded-2xl overflow-hidden flex-shrink-0 border border-gray-100">
+                      <img
+                        src={item.image}
+                        alt={item.name}
+                        className="w-full h-full object-cover"
+                      />
+                      <span className="absolute -top-1 -right-1 bg-blue-600 text-white text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full">
+                        {item.quantity}
+                      </span>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h4 className="text-sm font-bold text-gray-900 truncate">
+                        {item.name}
+                      </h4>
+                      <p className="text-xs text-gray-400 font-medium">
+                        ${item.price.toFixed(2)} each
+                      </p>
+                    </div>
+                    <p className="text-sm font-black text-gray-900">
+                      ${(item.price * item.quantity).toFixed(2)}
+                    </p>
+                  </div>
+                ))}
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-3 pt-6 border-t border-dashed border-gray-200">
+                <div className="flex justify-between text-gray-500 text-sm font-semibold">
+                  <span>Subtotal</span>
+                  <span>${cartTotal.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between text-gray-500 text-sm font-semibold">
+                  <span className="flex items-center gap-1">
+                    <Truck size={14} /> Shipping
+                  </span>
+                  <span className="text-green-600">
+                    {shippingFee === 0 ? "FREE" : `$${shippingFee.toFixed(2)}`}
+                  </span>
+                </div>
+                <div className="flex justify-between text-lg font-black text-gray-900 pt-3 border-t">
+                  <span>Total</span>
+                  <span className="text-blue-600">${total.toFixed(2)}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* LEFT COLUMN (The Form) */}
+          <div className="lg:col-span-8 space-y-6">
+            <section className="bg-white rounded-[2.5rem] p-6 sm:p-10 shadow-sm border border-gray-100 overflow-hidden relative">
+              <div className="absolute top-0 left-0 w-2 h-full bg-blue-600" />
+              <div className="flex items-center gap-4 mb-8">
+                <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center font-black shadow-inner">
+                  01
+                </div>
+                <div>
+                  <h2 className="text-2xl font-black">Shipping Address</h2>
+                  <p className="text-sm text-gray-400">
+                    Where should we send your order?
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <Input
                   label="First Name"
                   error={errors.firstName}
                   value={formData.firstName}
-                  onChange={(e) => handleChange(e, "firstName")}
+                  onChange={(e) =>
+                    setFormData({ ...formData, firstName: e.target.value })
+                  }
                 />
                 <Input
                   label="Last Name"
                   error={errors.lastName}
                   value={formData.lastName}
-                  onChange={(e) => handleChange(e, "lastName")}
+                  onChange={(e) =>
+                    setFormData({ ...formData, lastName: e.target.value })
+                  }
                 />
                 <div className="md:col-span-2">
                   <Input
-                    label="Address"
+                    label="Street Address"
                     error={errors.address}
                     value={formData.address}
-                    onChange={(e) => handleChange(e, "address")}
+                    onChange={(e) =>
+                      setFormData({ ...formData, address: e.target.value })
+                    }
                   />
                 </div>
                 <Input
                   label="City"
                   error={errors.city}
                   value={formData.city}
-                  onChange={(e) => handleChange(e, "city")}
+                  onChange={(e) =>
+                    setFormData({ ...formData, city: e.target.value })
+                  }
                 />
                 <Input
-                  label="Postal Code"
+                  label="ZIP / Postal Code"
                   placeholder="12345"
                   error={errors.zip}
                   value={formData.zip}
-                  onChange={(e) => handleChange(e, "zip")}
+                  onChange={(e) =>
+                    setFormData({ ...formData, zip: e.target.value })
+                  }
                 />
               </div>
             </section>
 
-            <section className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100">
+            <section className="bg-white rounded-[2.5rem] p-6 sm:p-10 shadow-sm border border-gray-100 relative">
+              <div className="absolute top-0 left-0 w-2 h-full bg-gray-900" />
               <div className="flex items-center gap-4 mb-8">
-                <div className="w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold">
-                  2
+                <div className="w-12 h-12 bg-gray-50 text-gray-900 rounded-2xl flex items-center justify-center font-black">
+                  02
                 </div>
-                <h2 className="text-2xl font-bold">Payment</h2>
+                <div>
+                  <h2 className="text-2xl font-black">Payment Method</h2>
+                  <p className="text-sm text-gray-400">
+                    All transactions are encrypted and secure.
+                  </p>
+                </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div className="md:col-span-2">
                   <Input
                     label="Card Number"
-                    placeholder="1234 5678 1234 5678"
+                    placeholder="0000 0000 0000 0000"
                     error={errors.cardNumber}
                     value={formData.cardNumber}
-                    onChange={(e) => handleChange(e, "cardNumber")}
+                    onChange={(e) =>
+                      setFormData({ ...formData, cardNumber: e.target.value })
+                    }
                   />
                 </div>
                 <Input
-                  label="Expiry (MM/YY)"
-                  placeholder="12/25"
+                  label="Expiry Date"
+                  placeholder="MM/YY"
                   error={errors.expiry}
                   value={formData.expiry}
-                  onChange={(e) => handleChange(e, "expiry")}
+                  onChange={(e) =>
+                    setFormData({ ...formData, expiry: e.target.value })
+                  }
                 />
                 <Input
-                  label="CVC"
+                  label="CVC Code"
                   placeholder="123"
                   error={errors.cvc}
                   value={formData.cvc}
-                  onChange={(e) => handleChange(e, "cvc")}
+                  onChange={(e) =>
+                    setFormData({ ...formData, cvc: e.target.value })
+                  }
                 />
               </div>
             </section>
@@ -163,89 +260,16 @@ export default function CheckoutPage() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className={`w-full py-5 rounded-2xl font-bold text-lg transition-all flex items-center justify-center gap-2 ${
+              className={`group w-full py-6 rounded-[2rem] font-black text-xl transition-all flex items-center justify-center gap-3 active:scale-[0.98] ${
                 isSubmitting
-                  ? "bg-gray-400 cursor-not-allowed"
-                  : "bg-gray-900 text-white hover:bg-blue-600 shadow-xl"
+                  ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                  : "bg-gray-900 text-white hover:bg-blue-600 shadow-[0_20px_50px_rgba(0,0,0,0.15)] hover:shadow-blue-200"
               }`}>
-              {isSubmitting ? "Processing..." : "Complete Purchase"}{" "}
-              <ChevronRight size={20} />
+              {isSubmitting ? "Processing..." : `Pay $${total.toFixed(2)}`}
+              {!isSubmitting && (
+                <ChevronRight className="group-hover:translate-x-1 transition-transform" />
+              )}
             </button>
-          </div>
-
-          {/* RIGHT: Summary */}
-          <div className="lg:col-span-4">
-            <div className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100 sticky top-28">
-              <h3 className="text-xl font-bold mb-6">Order Summary</h3>
-
-              {/* Product List */}
-              <div className="space-y-4 mb-6 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
-                {cart.length > 0 ? (
-                  cart.map((item) => (
-                    <div key={item.id} className="flex gap-4 items-center">
-                      <div className="relative w-16 h-16 bg-gray-100 rounded-xl overflow-hidden flex-shrink-0">
-                        <img
-                          src={item.image}
-                          alt={item.name}
-                          className="w-full h-full object-cover"
-                        />
-                        <span className="absolute -top-1 -right-1 bg-gray-900 text-white text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full border-2 border-white">
-                          {item.quantity}
-                        </span>
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <h4 className="text-sm font-bold text-gray-900 truncate">
-                          {item.name}
-                        </h4>
-                        <p className="text-xs text-gray-500">{item.category}</p>
-                      </div>
-                      <p className="text-sm font-bold text-gray-800">
-                        ${(item.price * item.quantity).toFixed(2)}
-                      </p>
-                    </div>
-                  ))
-                ) : (
-                  <div className="text-center py-4">
-                    <p className="text-gray-500 text-sm mb-4">
-                      Your cart is empty
-                    </p>
-                    <Link
-                      href="/shop"
-                      className="text-blue-600 font-bold text-sm">
-                      Return to Shop
-                    </Link>
-                  </div>
-                )}
-              </div>
-
-              {/* Calculation */}
-              <div className="space-y-3 pt-6 border-t border-gray-100 mb-6">
-                <div className="flex justify-between text-gray-600 text-sm font-medium">
-                  <span>Subtotal</span>
-                  <span>${cartTotal.toFixed(2)}</span>
-                </div>
-                <div className="flex justify-between text-gray-600 text-sm font-medium">
-                  <span>Shipping</span>
-                  <span>${shippingFee.toFixed(2)}</span>
-                </div>
-                {/* Optional: Add Tax if needed */}
-                <div className="flex justify-between text-gray-600 text-sm font-medium">
-                  <span>Estimated Tax</span>
-                  <span>$0.00</span>
-                </div>
-              </div>
-
-              <div className="flex justify-between text-xl font-extrabold text-gray-900 pt-3 border-t">
-                <span>Total</span>
-                <span className="text-blue-600">${total.toFixed(2)}</span>
-              </div>
-
-              {/* Trust Message */}
-              <div className="mt-8 flex items-center justify-center gap-2 text-gray-400 text-xs font-semibold uppercase tracking-widest">
-                <Lock size={12} />
-                Secure SSL Checkout
-              </div>
-            </div>
           </div>
         </form>
       </main>
@@ -253,28 +277,32 @@ export default function CheckoutPage() {
   );
 }
 
-// 2. Enhanced Reusable Input with Error display
 function Input({ label, error, ...props }) {
   return (
-    <div className="flex flex-col gap-1.5 w-full">
-      <label className="text-sm font-bold text-gray-700 ml-1">{label}</label>
+    <div className="space-y-2">
+      <label className="text-xs font-black uppercase tracking-widest text-gray-500 ml-1">
+        {label}
+      </label>
       <div className="relative">
         <input
           {...props}
-          className={`w-full px-5 py-3 rounded-xl outline-none transition-all border ${
+          className={`w-full px-6 py-4 rounded-2xl font-semibold outline-none transition-all border-2 ${
             error
-              ? "bg-red-50 border-red-300 focus:border-red-500 ring-red-100"
-              : "bg-gray-50 border-gray-100 focus:bg-white focus:border-blue-600 ring-blue-50"
-          } focus:ring-4`}
+              ? "bg-red-50 border-red-100 focus:border-red-500 text-red-900"
+              : "bg-white border-gray-100 focus:border-blue-600 focus:ring-4 focus:ring-blue-50 text-gray-900"
+          }`}
         />
         {error && (
-          <div className="absolute right-4 top-3.5 text-red-500">
-            <AlertCircle size={18} />
-          </div>
+          <AlertCircle
+            size={20}
+            className="absolute right-4 top-4 text-red-500 animate-pulse"
+          />
         )}
       </div>
       {error && (
-        <p className="text-xs font-semibold text-red-500 ml-1">{error}</p>
+        <p className="text-[11px] font-bold text-red-500 uppercase tracking-tight ml-1">
+          {error}
+        </p>
       )}
     </div>
   );

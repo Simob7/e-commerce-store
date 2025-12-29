@@ -12,8 +12,13 @@ import {
 import { useCart } from "@/context/CartContext";
 
 export default function ProductInfo({ product }) {
-  const { addToCart, setIsOpen } = useCart();
+  const { cart, addToCart, setIsOpen } = useCart();
+
   const [quantity, setQuantity] = useState(1);
+
+  // Smart check: Is this specific product already in the cart?
+  const isInCart = cart.some((item) => item.id === product.id);
+  const cartItem = cart.find((item) => item.id === product.id);
 
   const handleAddToCart = () => {
     addToCart({ ...product, quantity });
@@ -85,17 +90,26 @@ export default function ProductInfo({ product }) {
             </button>
           </div>
 
-          {/* Wrapper for Button + Wishlist to keep them on one line if space permits */}
-          <div className="flex flex-1 gap-3">
+          <div className="flex flex-1 gap-3 items-center">
             <button
-              onClick={handleAddToCart}
-              className="flex-1 bg-gray-900 hover:bg-blue-600 text-white font-bold h-[52px] md:h-[56px] rounded-2xl flex items-center justify-center gap-2 md:gap-3 transition-all active:scale-[0.98] shadow-xl shadow-gray-200 text-sm md:text-base">
+              onClick={() => {
+                addToCart(product);
+                setIsOpen(true);
+              }}
+              className="flex-1 bg-gray-900 hover:bg-blue-600 text-white font-bold h-[52px] md:h-[56px] rounded-2xl flex items-center justify-center gap-3 transition-all active:scale-[0.98] relative overflow-hidden group">
               <ShoppingCart size={18} />
-              Add to Cart
+              <span>{isInCart ? "Add Another" : "Add to Cart"}</span>
+
+              {/* Small badge inside the button */}
+              {isInCart && (
+                <span className="absolute top-2 right-2 bg-white text-gray-900 text-[10px] w-5 h-5 flex items-center justify-center rounded-full shadow-sm">
+                  {cartItem.quantity}
+                </span>
+              )}
             </button>
 
             <button className="h-[52px] w-[52px] md:h-[56px] md:w-[56px] flex-shrink-0 flex items-center justify-center border-2 border-gray-100 rounded-2xl hover:bg-gray-50 hover:border-red-100 hover:text-red-500 transition-all group">
-              <Heart size={22} className="group-active:fill-red-500" />
+              <Heart size={22} />
             </button>
           </div>
         </div>
