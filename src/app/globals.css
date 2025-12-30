@@ -1,3 +1,62 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer components {
+  /* The standard container for all pages */
+  .section-container {
+    @apply max-w-7xl mx-auto px-4;
+  }
+
+  /* The "Smart Grid" for product listings */
+  .product-grid {
+    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-10;
+  }
+
+  /* Interactive Pill Buttons (Categories) */
+  .pill-button {
+    @apply px-5 py-2 rounded-full border text-sm font-bold transition-all whitespace-nowrap active:scale-95;
+  }
+
+  .pill-button-active {
+    @apply bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-100;
+  }
+
+  .pill-button-inactive {
+    @apply border-gray-200 text-gray-600 hover:border-blue-600 hover:text-blue-600 bg-white;
+  }
+
+  /* Empty State / Not Found Boxes */
+  .empty-state-card {
+    @apply text-center py-24 bg-gray-50 rounded-[2.5rem] border-2 border-dashed border-gray-200;
+  }
+
+  /* Hide scrollbars but keep functionality */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+/* For your buttons and interactive elements */
+.glass {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}

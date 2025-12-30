@@ -18,10 +18,8 @@ import ShoppingCartSidebar from "@/components/ShoppingCartSidebar";
 import Link from "next/link";
 import { ProductCard } from "@/components/ProductCard";
 
-
 export default function ProductPage({ params, product }) {
   const router = useRouter();
-
 
   if (!product) {
     // Grab 3-4 random or featured products to show as "alternatives"

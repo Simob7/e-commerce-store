@@ -17,7 +17,7 @@ export const PRODUCTS = [
       "Experience pure sound with our flagship noise-canceling headphones. Featuring 40-hour battery life and plush protein leather ear cups.",
   },
   {
-    id: 11,
+    id: 2,
     name: "Series 9 Pro Smart Watch",
     price: 199.99,
     category: "Electronics",
